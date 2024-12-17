@@ -1,6 +1,32 @@
 [package]
-name = "newsletter-rs"
+name = "newsletter"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+## cargo defaults to package.name if name is not specified
+path = "src/lib.rs"
+
+[[bin]]
+## crate can have one library and multiple binaries
+path = "src/main.rs"
+name = "newsletter"
+
 [dependencies]
+axum = "0.7.9"
+config = "0.14.1"
+reqwest = "0.12.9"
+serde = { version = "1.0.216", features = ["derive"] }
+tokio = { version = "1.42.0", features = ["full"] }
+tower = "0.5.1"
+[dependencies.sqlx]
+version = "0.8.2"
+default-features = false
+features = [
+    "runtime-tokio-rustls",
+    "macros",
+    "postgres",
+    "uuid",
+    "chrono",
+    "migrate",
+]
