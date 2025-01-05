@@ -1,20 +1,21 @@
 use std::sync::Arc;
 
-use axum::routing::get;
+use axum::routing::{get, post};
 use axum::Router;
-use sqlx::PgConnection;
+use sqlx::PgPool;
 
 use crate::routes::{health_check, subscribe};
 
-struct AppState {
-    connection: PgConnection,
+#[derive(Debug, Clone)]
+pub struct AppState {
+    pub pool: Arc<PgPool>,
 }
 
-pub async fn router(connection: PgConnection) -> Router {
-    let state = Arc::new(AppState { connection });
+pub async fn router(pool: Arc<PgPool>) -> Router {
+    let state = Arc::new(AppState {pool});
 
     Router::new()
         .route("/health_check", get(health_check))
-        .route("/subscriptions", get(subscribe))
+        .route("/subscriptions", post(subscribe))
         .with_state(state)
 }
