@@ -4,7 +4,6 @@ use axum::{extract::State, response::IntoResponse, Form};
 use reqwest::StatusCode;
 use serde::Deserialize;
 use sqlx::types::{chrono, Uuid};
-use tracing::Instrument;
 
 use crate::startup::AppState;
 
@@ -14,42 +13,37 @@ pub struct FormData {
     name: String,
 }
 
+#[tracing::instrument(name = "Adding a new subscriber", skip(form, state), fields(request_id = %Uuid::new_v4(),subscriber_email = %form.email, subscriber_name = %form.name))]
 pub async fn subscribe(
     State(state): State<Arc<AppState>>,
     Form(form): Form<FormData>,
 ) -> impl IntoResponse {
-    let request_id = Uuid::new_v4();
-    let request_span = tracing::info_span!("Adding a new subscriber.", %request_id, subscriber_email = %form.email, subscriber_name = %form.name);
-    let _request_span_guard = request_span.enter();
-    let query_span = tracing::info_span!("Saving new subscriber details in database");
+    match insert_subscriber(State(state), Form(form)).await {
+        Ok(_) => (StatusCode::OK, "Thanks for subscribing"),
+        Err(_) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "There was a problem, please try again later",
+        ),
+    }
+}
 
-    let uuid = Uuid::new_v4();
-    let now = chrono::Utc::now();
-    match sqlx::query!(
-        r#"INSERT INTO subscriptions(id, email, name, subscribed_at) VALUES ($1, $2, $3, $4)"#,
-        uuid,
+#[tracing::instrument(name = "Saving new subscriber details in database", skip(form, state))]
+pub async fn insert_subscriber(
+    State(state): State<Arc<AppState>>,
+    Form(form): Form<FormData>,
+) -> Result<(), sqlx::Error> {
+    sqlx::query!(
+        r#"INSERT INTO subscriptions (id, email, name, subscribed_at) VALUES ($1, $2, $3, $4)"#,
+        Uuid::new_v4(),
         form.email,
         form.name,
-        now
+        chrono::Utc::now(),
     )
     .execute(&*state.pool)
-    .instrument(query_span)
     .await
-    {
-        Ok(_) => {
-            tracing::info!(
-                "request id {} - New subscriber details have been saved",
-                request_id
-            );
-            StatusCode::OK
-        }
-        Err(e) => {
-            tracing::error!(
-                "request id {} - Failed to execute query: {:?}",
-                request_id,
-                e
-            );
-            StatusCode::INTERNAL_SERVER_ERROR
-        }
-    }
+    .map_err(|e| {
+        tracing::error!("Failed to execute query: {:?}", e);
+        e
+    })?;
+    Ok(())
 }
