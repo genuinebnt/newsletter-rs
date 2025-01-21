@@ -5,6 +5,7 @@ use newsletter::{
     telemetry::{get_subscriber, init_subscriber},
 };
 use once_cell::sync::Lazy;
+use secrecy::ExposeSecret;
 use sqlx::PgPool;
 use tokio::net::TcpListener;
 
@@ -32,7 +33,7 @@ async fn spawn_app() -> TestApp {
     let configuration = get_configuration().expect("Failed to read configuration");
     let connection_string = configuration.database.connection_string();
     let pool = Arc::new(
-        PgPool::connect(&connection_string)
+        PgPool::connect(connection_string.expose_secret())
             .await
             .expect("Failed to connect to database"),
     );

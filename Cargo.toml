@@ -13,30 +13,31 @@ path = "src/main.rs"
 name = "newsletter"
 
 [dependencies]
-axum = "0.7.9"
-config = "0.14.1"
+axum = "0.8.1"
+config = "0.15.6"
 once_cell = "1.20.2"
-reqwest = "0.12.9"
-serde = { version = "1.0.216", features = ["derive"] }
-tokio = { version = "1.42.0", features = ["full"] }
-tower = { version = "0.5.1", features = ["tracing"] }
+reqwest = "0.12.12"
+secrecy = { version = "0.10.3", features = ["serde"] }
+serde = { version = "1.0.217", features = ["derive"] }
+tokio = { version = "1.43.0", features = ["full"] }
+tower = { version = "0.5.2", features = ["tracing"] }
 tower-http = { version = "0.6.2", features = ["trace"] }
 tracing = { version = "0.1.41", features = ["log"] }
 tracing-bunyan-formatter = "0.3.10"
 tracing-log = "0.2.0"
 tracing-subscriber = { version = "0.3.19", features = [
-    "env-filter",
-    "registry",
+  "env-filter",
+  "registry",
 ] }
-uuid = { version = "1.11.0", features = ["v4"] }
+uuid = { version = "1.12.0", features = ["v4"] }
 [dependencies.sqlx]
-version = "0.8.2"
+version = "0.8.3"
 default-features = false
 features = [
-    "runtime-tokio-rustls",
-    "macros",
-    "postgres",
-    "uuid",
-    "chrono",
-    "migrate",
+  "runtime-tokio-rustls",
+  "macros",
+  "postgres",
+  "uuid",
+  "chrono",
+  "migrate",
 ]
