@@ -1,3 +1,5 @@
+use newsletter::configuration::{self, get_configuration};
+use sqlx::{Connection, PgConnection};
 use tokio::net::TcpListener;
 
 async fn spawn_app() -> String {
@@ -36,6 +38,11 @@ async fn health_check_works() {
 #[tokio::test]
 async fn subscribe_returns_a_200_for_valid_form_data() {
     let app_address = spawn_app().await;
+    let configuration = get_configuration().expect("Failed to get configuration");
+    let connection_string = configuration.database.connection_string();
+    let connection = PgConnection::connect(&connection_string)
+        .await
+        .expect("Failed to connect to postgres");
     let client = reqwest::Client::new();
 
     let body = "name=genuine&email=genuine.basilnt@gmail.com";
