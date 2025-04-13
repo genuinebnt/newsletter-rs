@@ -1,12 +1,10 @@
-use std::sync::Arc;
-
+use crate::routes::{health_check::health_check, subscribe::subscribe};
 use axum::{
     Router,
     routing::{get, post},
 };
 use sqlx::PgPool;
-
-use crate::routes::{health_check::health_check, subscribe::subscribe};
+use std::sync::Arc;
 
 pub struct AppState {
     pub pool: Arc<PgPool>,

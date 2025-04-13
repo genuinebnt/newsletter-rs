@@ -1,12 +1,10 @@
-use std::sync::Arc;
-
+use crate::startup::AppState;
 use axum::{Form, extract::State, response::IntoResponse};
 use chrono::Utc;
 use reqwest::StatusCode;
 use serde::Deserialize;
+use std::sync::Arc;
 use uuid::Uuid;
-
-use crate::startup::AppState;
 
 #[derive(Deserialize)]
 pub struct FormData {
