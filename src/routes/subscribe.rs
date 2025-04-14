@@ -23,7 +23,7 @@ pub async fn subscribe(
         form.name,
         Utc::now()
     )
-    .execute(&*state.pool)
+    .execute(&state.pool)
     .await
     .unwrap();
     StatusCode::OK

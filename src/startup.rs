@@ -7,13 +7,11 @@ use sqlx::PgPool;
 use std::sync::Arc;
 
 pub struct AppState {
-    pub pool: Arc<PgPool>,
+    pub pool: PgPool,
 }
 
 pub fn router(pool: PgPool) -> Router {
-    let app_state = Arc::new(AppState {
-        pool: Arc::new(pool),
-    });
+    let app_state = Arc::new(AppState { pool: pool });
 
     Router::new()
         .route("/health_check", get(health_check))
